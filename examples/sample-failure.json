@@ -1,0 +1,59 @@
+{
+  "taskName": "ADE_DEMO.OPS.LOAD_DAILY_ORDERS",
+  "database": "ADE_DEMO",
+  "schema": "OPS",
+  "failedAt": "2026-08-14T02:00:00.000Z",
+  "errorText": "SQL compilation error: error line 1 at position 42\ninvalid identifier 'AMOUNT'",
+  "taskDefinitionExcerpt": "INSERT INTO ADE_DEMO.OPS.ORDERS_DAILY\nSELECT ORDER_ID, AMOUNT, ORDER_TS FROM ADE_DEMO.OPS.ORDERS\nWHERE ORDER_TS >= DATEADD('day', -1, CURRENT_TIMESTAMP());",
+  "tableColumns": ["ORDER_ID", "ORDER_TOTAL", "ORDER_TS"],
+  "change": {
+    "object": "ADE_DEMO.OPS.ORDERS",
+    "changeType": "rename_column",
+    "before": "AMOUNT",
+    "after": "ORDER_TOTAL",
+    "detectedAt": "2026-08-14T01:55:00.000Z"
+  },
+  "rootCause": "Schema drift: ORDERS.AMOUNT was renamed to ORDER_TOTAL, but task SQL still selects AMOUNT",
+  "evidence": [
+    "TASK_HISTORY state FAILED with invalid identifier 'AMOUNT'",
+    "DESCRIBE TABLE ADE_DEMO.OPS.ORDERS shows ORDER_TOTAL, not AMOUNT",
+    "Repo file tasks/load_daily_orders.sql still references AMOUNT",
+    "Dependency assessment: downstream consumers LOAD_DAILY_ORDERS + ORDERS_SUMMARY; blastRadius medium"
+  ],
+  "proposedFix": "Replace AMOUNT with ORDER_TOTAL in tasks/load_daily_orders.sql; note ORDERS_SUMMARY view for human review",
+  "prUrl": "https://github.com/example/pipeline-repo/pull/42",
+  "outcome": {
+    "outcome": "resolved",
+    "rootCause": "Schema drift: ORDERS.AMOUNT renamed to ORDER_TOTAL; task SQL still references AMOUNT",
+    "evidence": [
+      "TASK_HISTORY state FAILED with invalid identifier 'AMOUNT'",
+      "DESCRIBE TABLE ADE_DEMO.OPS.ORDERS shows ORDER_TOTAL, not AMOUNT",
+      "Repo file tasks/load_daily_orders.sql still references AMOUNT",
+      "Dependency assessment: impactedCount=2, blastRadius=medium"
+    ],
+    "prUrl": "https://github.com/example/pipeline-repo/pull/42",
+    "dependencyAssessment": {
+      "changedObjects": ["ADE_DEMO.OPS.ORDERS.AMOUNT→ORDER_TOTAL"],
+      "upstream": ["ADE_DEMO.OPS.ORDERS"],
+      "downstream": [
+        "ADE_DEMO.OPS.LOAD_DAILY_ORDERS",
+        "ADE_DEMO.OPS.ORDERS_SUMMARY"
+      ],
+      "impactedCount": 2,
+      "blastRadius": "medium",
+      "notes": [
+        "LOAD_DAILY_ORDERS task SQL still selects AMOUNT — in-repo fix",
+        "ORDERS_SUMMARY view also depends on ORDERS; verify definition after column rename (Snowflake-managed; human check)"
+      ]
+    },
+    "verificationNotes": "After merge: EXECUTE TASK ADE_DEMO.OPS.LOAD_DAILY_ORDERS; confirm TASK_HISTORY SUCCEEDED; SELECT * FROM ADE_DEMO.OPS.ORDERS_SUMMARY LIMIT 1. Agent never applies prod DDL.",
+    "stagesCompleted": [
+      "detect",
+      "gather_context",
+      "diagnose",
+      "test",
+      "act_safely",
+      "verify"
+    ]
+  }
+}

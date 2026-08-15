@@ -1,0 +1,31 @@
+{
+  "name": "cursor-sdk-selfhealing",
+  "version": "0.1.0",
+  "description": "ADE Task Debugger — Cursor SDK cloud agents that diagnose failed Snowflake Tasks and open fix PRs",
+  "type": "module",
+  "bin": {
+    "ade": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "ade": "tsx src/cli.ts",
+    "ade:dist": "npm run build && node dist/cli.js",
+    "start": "node dist/cli.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "dependencies": {
+    "@cursor/sdk": "^1.0.0",
+    "commander": "^13.1.0",
+    "dotenv": "^16.4.7",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

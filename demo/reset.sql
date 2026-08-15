@@ -1,0 +1,13 @@
+-- Idempotent teardown / reseed helper for ADE demo
+-- Run before seed.sql when you need a clean slate.
+
+CREATE DATABASE IF NOT EXISTS ADE_DEMO;
+CREATE SCHEMA IF NOT EXISTS ADE_DEMO.OPS;
+
+-- Best-effort suspend (ignore errors if task missing / already suspended)
+-- ALTER TASK ADE_DEMO.OPS.LOAD_DAILY_ORDERS SUSPEND;
+
+DROP TASK IF EXISTS ADE_DEMO.OPS.LOAD_DAILY_ORDERS;
+DROP VIEW IF EXISTS ADE_DEMO.OPS.ORDERS_SUMMARY;
+DROP TABLE IF EXISTS ADE_DEMO.OPS.ORDERS_DAILY;
+DROP TABLE IF EXISTS ADE_DEMO.OPS.ORDERS;
